@@ -20,6 +20,7 @@
         <module>eureka-server</module>
         <module>config-server</module>
         <module>api-gateway</module>
+        <module>product-service</module>
     </modules>
 
     <properties>
@@ -51,4 +52,14 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
+    </build>
 </project>
