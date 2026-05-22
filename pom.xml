@@ -17,10 +17,12 @@
     </parent>
 
     <modules>
+        <module>grpc-api</module>
         <module>eureka-server</module>
         <module>config-server</module>
         <module>api-gateway</module>
         <module>product-service</module>
+        <!--<module>order-service</module>-->
     </modules>
 
     <properties>
