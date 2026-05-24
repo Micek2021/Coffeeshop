@@ -22,7 +22,7 @@
         <module>config-server</module>
         <module>api-gateway</module>
         <module>product-service</module>
-        <!--<module>order-service</module>-->
+        <module>order-service</module>
     </modules>
 
     <properties>
