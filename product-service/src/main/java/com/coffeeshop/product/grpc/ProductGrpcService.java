@@ -1,6 +1,5 @@
 package com.coffeeshop.product.grpc;
 
-import com.coffeeshop.grpc.AvailabilityResponse;
 import com.coffeeshop.grpc.ProductRequest;
 import com.coffeeshop.grpc.ProductResponse;
 import com.coffeeshop.grpc.ProductServiceGrpc;

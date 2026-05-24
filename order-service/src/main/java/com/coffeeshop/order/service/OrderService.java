@@ -40,9 +40,9 @@ public class OrderService {
         return order;
     }
 
-//    public Order payOrder(Long orderId){
-//        Order order = getOrder(orderId);
-//    }
+    public Order payForOrder(Long orderId){
+        return null;
+    }
 
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
