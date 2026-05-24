@@ -1,4 +1,5 @@
-package com.coffeeshop.order.model;
+package com.coffeeshop.messaging;
+
 
 public enum OrderStatus {
     PENDING,
@@ -8,3 +9,4 @@ public enum OrderStatus {
     SHIPPED,
     DELIVERED
 }
+

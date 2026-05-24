@@ -1,0 +1,30 @@
+package com.coffeeshop.order.messaging;
+
+import com.coffeeshop.messaging.InventoryCheckEvent;
+import com.coffeeshop.messaging.OrderStatus;
+import com.coffeeshop.order.model.Order;
+import com.coffeeshop.order.service.OrderService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class OrderEventListener {
+    private final OrderService orderService;
+    private final OrderEventPublisher orderEventPublisher;
+
+    @RabbitListener(queues = "inventory.response.queue")
+    public void handleInventoryCheck(InventoryCheckEvent event){
+        OrderStatus status = event.isAvailable() ? OrderStatus.AWAITING_PAYMENT : OrderStatus.CANCELLED;
+
+        Order order = orderService.updateStatus(event.getOrderId(), status);
+        log.info("Order {} status changed to {}", event.getOrderId(), status);
+
+        //soap?
+
+        orderEventPublisher.publishOrderStatusChanged(order);
+    }
+}
