@@ -91,5 +91,10 @@
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.coffeeshop</groupId>
+            <artifactId>soap-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
