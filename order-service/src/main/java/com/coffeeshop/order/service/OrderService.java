@@ -6,6 +6,9 @@ import com.coffeeshop.order.model.Order;
 import com.coffeeshop.messaging.OrderStatus;
 import com.coffeeshop.order.repository.OrderRepository;
 import com.coffeeshop.order.grpc.ProductGrpcClient;
+import com.coffeeshop.order.soap.PaymentSoapClient;
+import com.coffeeshop.soap.PaymentRequest;
+import com.coffeeshop.soap.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ public class OrderService {
     private final ProductGrpcClient productGrpcClient;
 
     private final OrderEventPublisher orderEventPublisher;
+    private final PaymentSoapClient paymentClient;
 
     public Order placeOrder(Long productId, int quantity, String customerName){
         ProductResponse product = productGrpcClient.getProduct(productId);
@@ -41,7 +45,35 @@ public class OrderService {
     }
 
     public Order payForOrder(Long orderId){
-        return null;
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.AWAITING_PAYMENT) {
+            throw new IllegalStateException("Order " + orderId + " cannot be paid in status: " + order.getStatus());
+        }
+
+        log.info("Processing SOAP payment for order {} via button click...", orderId);
+
+        PaymentRequest soapRequest = new PaymentRequest();
+        soapRequest.setOrderId(orderId);
+        soapRequest.setTotalPrice(order.getTotalPrice());
+
+        PaymentResponse soapResponse = paymentClient.processPayment(soapRequest);
+
+        OrderStatus newStatus;
+        OrderStatus finalStatus;
+        if (soapResponse.isPaymentApproved()) {
+            log.info("Payment APPROVED for order {}", orderId);
+            finalStatus = OrderStatus.CONFIRMED;
+        } else {
+            log.warn("Payment REJECTED for order {}", orderId);
+            finalStatus = OrderStatus.CANCELLED;
+        }
+
+        Order updatedOrder = updateStatus(orderId, finalStatus);
+        orderEventPublisher.publishOrderStatusChanged(updatedOrder);
+
+        return updatedOrder;
     }
 
     public Order getOrder(Long orderId) {

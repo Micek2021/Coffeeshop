@@ -22,9 +22,6 @@ public class OrderEventListener {
 
         Order order = orderService.updateStatus(event.getOrderId(), status);
         log.info("Order {} status changed to {}", event.getOrderId(), status);
-
-        //soap?
-
         orderEventPublisher.publishOrderStatusChanged(order);
     }
 }

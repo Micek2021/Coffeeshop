@@ -45,7 +45,7 @@ public class PaymentEndpoint {
         }
 
         response.setOrderId(id);
-        response.setStatus(paymentStatus);
+        response.setPaymentApproved(paymentStatus);
         return response;
     }
 }
