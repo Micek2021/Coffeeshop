@@ -3,6 +3,7 @@ package com.coffeeshop.inventory.service;
 import com.coffeeshop.inventory.model.InventoryState;
 import com.coffeeshop.inventory.repository.InventoryRepository;
 import com.coffeeshop.rabbitmq.InventoryCheckEvent;
+import com.coffeeshop.rabbitmq.OrderCompensationEvent;
 import com.coffeeshop.rabbitmq.OrderPlacedEvent;
 import com.coffeeshop.rabbitmq.config.inventory.InventoryMessagingConstants;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,6 @@ public class InventoryService {
 
         if (stateOptional.isPresent()) {
             InventoryState inventoryState = stateOptional.get();
-
             if (inventoryState.getStock() >= event.getQuantity()) {
                 inventoryState.setStock(inventoryState.getStock() - event.getQuantity());
                 inventoryRepository.save(inventoryState);
@@ -45,5 +45,16 @@ public class InventoryService {
 
         InventoryCheckEvent responseEvent = new InventoryCheckEvent(event.getOrderId(), isAvailable);
         rabbitTemplate.convertAndSend("", InventoryMessagingConstants.INVENTORY_RESPONSE_QUEUE, responseEvent);
+    }
+
+    @RabbitListener(queues = InventoryMessagingConstants.INVENTORY_COMPENSATION_QUEUE)
+    @Transactional
+    public void handleOrderCompensation(OrderCompensationEvent event) {
+        log.info("Processing stock compensation for order ID: {}, product ID: {}", event.getOrderId(), event.getProductId());
+
+        inventoryRepository.findByProductId(event.getProductId()).ifPresent(inventoryState -> {
+            inventoryState.setStock(inventoryState.getStock() + event.getQuantity());
+            inventoryRepository.save(inventoryState);
+        });
     }
 }

@@ -1,5 +1,6 @@
 package com.coffeeshop.order.rabbit;
 
+import com.coffeeshop.rabbitmq.OrderCompensationEvent;
 import com.coffeeshop.rabbitmq.OrderPlacedEvent;
 import com.coffeeshop.rabbitmq.OrderStatusChangedEvent;
 import com.coffeeshop.order.model.Order;
@@ -37,5 +38,21 @@ public class OrderEventPublisher {
         rabbitTemplate.convertAndSend(NotificationMessagingConstants.ORDER_STATUS_EXCHANGE, NotificationMessagingConstants.ROUTING_KEY_STATUS, event);
         log.info("Published OrderStatusChangedEvent for order: {}, status: {}",
                 order.getId(), order.getStatus());
+    }
+
+    public void publishOrderCompensation(Order order) {
+        OrderCompensationEvent event = new OrderCompensationEvent(
+                order.getId(),
+                order.getProductId(),
+                order.getQuantity()
+        );
+
+        rabbitTemplate.convertAndSend(
+                InventoryMessagingConstants.ORDER_COMPENSATION_EXCHANGE,
+                InventoryMessagingConstants.ROUTING_KEY_COMPENSATION,
+                event
+        );
+        log.info("Published OrderCompensationEvent for order: {}, product: {}, quantity: {}",
+                order.getId(), order.getProductId(), order.getQuantity());
     }
 }

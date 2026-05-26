@@ -3,6 +3,7 @@ package com.coffeeshop.order.service;
 import com.coffeeshop.grpc.ProductResponse;
 import com.coffeeshop.order.rabbit.OrderEventPublisher;
 import com.coffeeshop.order.model.Order;
+import com.coffeeshop.rabbitmq.OrderCompensationEvent;
 import com.coffeeshop.rabbitmq.OrderStatus;
 import com.coffeeshop.order.repository.OrderRepository;
 import com.coffeeshop.order.grpc.ProductGrpcClient;
@@ -71,6 +72,10 @@ public class OrderService {
 
         Order updatedOrder = updateStatus(orderId, newStatus);
         orderEventPublisher.publishOrderStatusChanged(updatedOrder);
+
+        if (newStatus == OrderStatus.CANCELLED){
+            orderEventPublisher.publishOrderCompensation(updatedOrder);
+        }
 
         return updatedOrder;
     }

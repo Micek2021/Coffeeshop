@@ -51,4 +51,17 @@ public class RabbitMQConfig {
                 .to(orderStatusExchange())
                 .with(NotificationMessagingConstants.ROUTING_KEY_STATUS);
     }
+
+    @Bean
+    public DirectExchange orderCompensationExchange() {
+        return new DirectExchange(InventoryMessagingConstants.ORDER_COMPENSATION_EXCHANGE);
+    }
+
+    @Bean
+    public Binding inventoryCompensationBinding() {
+        return BindingBuilder
+                .bind(new Queue(InventoryMessagingConstants.INVENTORY_COMPENSATION_QUEUE, true))
+                .to(orderCompensationExchange())
+                .with(InventoryMessagingConstants.ROUTING_KEY_COMPENSATION);
+    }
 }

@@ -15,4 +15,9 @@ public class RabbitMQConfig {
     public Queue inventoryQueue() {
         return new Queue(InventoryMessagingConstants.INVENTORY_QUEUE, true);
     }
+
+    @Bean
+    public Queue inventoryCompensationQueue() {
+        return new Queue(InventoryMessagingConstants.INVENTORY_COMPENSATION_QUEUE, true);
+    }
 }
