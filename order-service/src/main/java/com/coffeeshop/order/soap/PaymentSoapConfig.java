@@ -1,4 +1,4 @@
-package com.coffeeshop.order.config;
+package com.coffeeshop.order.soap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

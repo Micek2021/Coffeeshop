@@ -1,9 +1,9 @@
 package com.coffeeshop.order.service;
 
 import com.coffeeshop.grpc.ProductResponse;
-import com.coffeeshop.order.messaging.OrderEventPublisher;
+import com.coffeeshop.order.rabbit.OrderEventPublisher;
 import com.coffeeshop.order.model.Order;
-import com.coffeeshop.messaging.OrderStatus;
+import com.coffeeshop.rabbitmq.OrderStatus;
 import com.coffeeshop.order.repository.OrderRepository;
 import com.coffeeshop.order.grpc.ProductGrpcClient;
 import com.coffeeshop.order.soap.PaymentSoapClient;
@@ -61,16 +61,15 @@ public class OrderService {
         PaymentResponse soapResponse = paymentClient.processPayment(soapRequest);
 
         OrderStatus newStatus;
-        OrderStatus finalStatus;
         if (soapResponse.isPaymentApproved()) {
             log.info("Payment APPROVED for order {}", orderId);
-            finalStatus = OrderStatus.CONFIRMED;
+            newStatus = OrderStatus.CONFIRMED;
         } else {
             log.warn("Payment REJECTED for order {}", orderId);
-            finalStatus = OrderStatus.CANCELLED;
+            newStatus = OrderStatus.CANCELLED;
         }
 
-        Order updatedOrder = updateStatus(orderId, finalStatus);
+        Order updatedOrder = updateStatus(orderId, newStatus);
         orderEventPublisher.publishOrderStatusChanged(updatedOrder);
 
         return updatedOrder;

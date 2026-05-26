@@ -1,8 +1,10 @@
-package com.coffeeshop.order.messaging;
+package com.coffeeshop.order.rabbit;
 
-import com.coffeeshop.messaging.OrderPlacedEvent;
-import com.coffeeshop.messaging.OrderStatusChangedEvent;
+import com.coffeeshop.rabbitmq.OrderPlacedEvent;
+import com.coffeeshop.rabbitmq.OrderStatusChangedEvent;
 import com.coffeeshop.order.model.Order;
+import com.coffeeshop.rabbitmq.config.inventory.InventoryMessagingConstants;
+import com.coffeeshop.rabbitmq.config.notification.NotificationMessagingConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,8 +24,7 @@ public class OrderEventPublisher {
                 order.getCustomerName()
         );
 
-        rabbitTemplate.convertAndSend("order.placed.exchange", "order.placed", event);
-        rabbitTemplate.convertAndSend("order.placed.exchange", "order.placed", event);
+        rabbitTemplate.convertAndSend(InventoryMessagingConstants.ORDER_PLACED_EXCHANGE, InventoryMessagingConstants.ROUTING_KEY_PLACED, event);
         log.info("Published OrderPlacedEvent for order: {}", order.getId());
     }
 
@@ -33,7 +34,7 @@ public class OrderEventPublisher {
                 order.getStatus(),
                 order.getCustomerName()
         );
-        rabbitTemplate.convertAndSend("order.status.exchange", "order.status", event);
+        rabbitTemplate.convertAndSend(NotificationMessagingConstants.ORDER_STATUS_EXCHANGE, NotificationMessagingConstants.ROUTING_KEY_STATUS, event);
         log.info("Published OrderStatusChangedEvent for order: {}, status: {}",
                 order.getId(), order.getStatus());
     }

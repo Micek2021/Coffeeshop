@@ -1,6 +1,6 @@
 package com.coffeeshop.order.controller;
 
-import com.coffeeshop.messaging.OrderStatus;
+import com.coffeeshop.rabbitmq.OrderStatus;
 import com.coffeeshop.order.model.Order;
 import com.coffeeshop.order.service.OrderService;
 import lombok.RequiredArgsConstructor;

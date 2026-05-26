@@ -1,6 +1,6 @@
 package com.coffeeshop.order.model;
 
-import com.coffeeshop.messaging.OrderStatus;
+import com.coffeeshop.rabbitmq.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

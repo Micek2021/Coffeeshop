@@ -1,4 +1,4 @@
-package com.coffeeshop.messaging;
+package com.coffeeshop.rabbitmq;
 
 
 public enum OrderStatus {

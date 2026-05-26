@@ -1,4 +1,4 @@
-package com.coffeeshop.messaging;
+package com.coffeeshop.rabbitmq;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
