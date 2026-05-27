@@ -20,7 +20,7 @@ spring:
         - id: payment-soap-route
           uri: lb://PAYMENT-SERVICE
           predicates:
-              - Path=/ws/**
+            - Path=/payment-soap, /payment-soap/**
 
 eureka:
   client:
