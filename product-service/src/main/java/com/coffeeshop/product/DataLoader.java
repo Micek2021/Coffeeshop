@@ -23,6 +23,6 @@ public class DataLoader implements CommandLineRunner{
         productRepository.save(new Product(null, "Kawa bezkofeinowa 500g",
                 "Łagodna kawa bez kofeiny", 38.00, "/images/decaf.jpg"));
         productRepository.save(new Product(null, "Ethiopia Yirgacheffe 250g",
-                "Kawa specialty o cytrusowym aromacie", 65.00, "/images/ethiopia.jpg"));
+                "Kawa specialty o cytrusowym aromacie", 65.00, "https://kawepale.pl/wp-content/uploads/2022/09/ethiopia_yirgacheffee_przelew_front_fullprint.png"));
     }
 }

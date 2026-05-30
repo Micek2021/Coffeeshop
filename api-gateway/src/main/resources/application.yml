@@ -6,6 +6,17 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - OPTIONS
+            allowedHeaders: "*"
       routes:
         - id: order-service
           uri: lb://order-service
@@ -16,6 +27,11 @@ spring:
           uri: lb://product-service
           predicates:
             - Path=/products/**
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notification-websocket/**
 
         - id: payment-soap-route
           uri: lb://PAYMENT-SERVICE
