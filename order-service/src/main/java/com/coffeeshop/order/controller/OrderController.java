@@ -4,8 +4,12 @@ import com.coffeeshop.rabbitmq.OrderStatus;
 import com.coffeeshop.order.model.Order;
 import com.coffeeshop.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
 
@@ -17,37 +21,54 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public List<Order> getAllOrders(){
-        return orderService.getAllOrders();
+    public CollectionModel<EntityModel<Order>> getAllOrders() {
+        List<EntityModel<Order>> orders = orderService.getAllOrders()
+                .stream()
+                .map(this::toModel)
+                .toList();
+
+        return CollectionModel.of(orders,
+                linkTo(methodOn(OrderController.class).getAllOrders()).withSelfRel());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable Long id){
-        try {
-            return ResponseEntity.ok(orderService.getOrder(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }    }
+    public EntityModel<Order> getOrder(@PathVariable Long id) {
+        Order order = orderService.getOrder(id);
+        return toModel(order);
+    }
 
     @PostMapping
-    public ResponseEntity<Order> placeOrder(@RequestBody OrderRequest request){
+    public ResponseEntity<EntityModel<Order>> placeOrder(@RequestBody OrderRequest request) {
         Order order = orderService.placeOrder(
                 request.getProductId(),
                 request.getQuantity(),
                 request.getCustomerName()
         );
-        return ResponseEntity.accepted().body(order);
+        return ResponseEntity.accepted().body(toModel(order));
     }
 
     @PostMapping("/{id}/pay")
-    public ResponseEntity<Order> payForOrder(@PathVariable Long id){
+    public ResponseEntity<EntityModel<Order>> payForOrder(@PathVariable Long id) {
         Order order = orderService.payForOrder(id);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(toModel(order));
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Order> changeStatus(@PathVariable Long id, @RequestBody OrderStatus status){
+    public ResponseEntity<EntityModel<Order>> changeStatus(@PathVariable Long id, @RequestBody OrderStatus status) {
         Order order = orderService.updateStatus(id, status);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(toModel(order));
+    }
+
+    private EntityModel<Order> toModel(Order order) {
+        EntityModel<Order> model = EntityModel.of(order,
+                linkTo(methodOn(OrderController.class).getOrder(order.getId())).withSelfRel(),
+                linkTo(methodOn(OrderController.class).getAllOrders()).withRel("orders")
+        );
+
+        if (order.getStatus() == OrderStatus.AWAITING_PAYMENT) {
+            model.add(linkTo(methodOn(OrderController.class).payForOrder(order.getId())).withRel("pay"));
+        }
+
+        return model;
     }
 }

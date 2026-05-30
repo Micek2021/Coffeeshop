@@ -29,12 +29,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- HATEOAS -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-hateoas</artifactId>
-        </dependency>
-
         <!-- baza danych -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
