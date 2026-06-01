@@ -60,32 +60,37 @@
             return;
         }
 
-        stompClient = connectWebSocket(customerName, async function(event) {
-            console.log('WebSocket event:', event);
-            document.getElementById('order-status').innerText = event.status;
+        const socket = new SockJS('http://localhost:8085/notification-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
 
-            if (event.status === 'AWAITING_PAYMENT') {
-                const res = await fetch(`${API_BASE}/orders/${event.orderId}`);
-                const updatedOrder = await res.json();
-                currentOrder = updatedOrder;
+        stompClient.connect({}, async function () {
+            stompClient.subscribe(`/topic/orders/${customerName}`, async function (msg) {
+                const event = JSON.parse(msg.body);
+                console.log('WebSocket event:', event);
+                document.getElementById('order-status').innerText = event.status;
 
-                if (updatedOrder._links && updatedOrder._links.pay) {
-                    document.getElementById('pay-btn').style.display = 'block';
+                if (event.status === 'AWAITING_PAYMENT') {
+                    const res = await fetch(`${API_BASE}/orders/${event.orderId}`);
+                    const updatedOrder = await res.json();
+                    currentOrder = updatedOrder;
+
+                    if (updatedOrder._links && updatedOrder._links.pay) {
+                        document.getElementById('pay-btn').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('pay-btn').style.display = 'none';
                 }
-            } else {
-                document.getElementById('pay-btn').style.display = 'none';
-            }
+            });
+
+            const order = await placeOrder(params.get('productId'), quantity, customerName);
+            currentOrder = order;
+
+            document.getElementById('form-section').style.display = 'none';
+            document.getElementById('status-box').style.display = 'block';
+            document.getElementById('order-id').innerText = order.id;
+            document.getElementById('order-status').innerText = order.status;
         });
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const order = await placeOrder(params.get('productId'), quantity, customerName);
-        currentOrder = order;
-
-        document.getElementById('form-section').style.display = 'none';
-        document.getElementById('status-box').style.display = 'block';
-        document.getElementById('order-id').innerText = order.id;
-        document.getElementById('order-status').innerText = order.status;
     }
 
     async function pay() {

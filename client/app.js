@@ -18,20 +18,3 @@ async function payForOrder(payLink) {
     const res = await fetch(payLink, { method: 'POST' });
     return await res.json();
 }
-
-function connectWebSocket(customerName, onStatusChange) {
-    const socket = new SockJS('http://localhost:8085/notification-websocket');
-    const client = Stomp.over(socket);
-    client.debug = null;
-
-    client.connect({}, function () {
-        console.log('WebSocket połączony, subskrybuję...');
-        client.subscribe(`/topic/orders/${customerName}`, function (msg) {
-            const event = JSON.parse(msg.body);
-            console.log('Otrzymano event:', event);
-            onStatusChange(event);
-        });
-    });
-
-    return client;
-}
