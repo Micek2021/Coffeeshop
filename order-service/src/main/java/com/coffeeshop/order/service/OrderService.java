@@ -77,6 +77,23 @@ public class OrderService {
             orderEventPublisher.publishOrderCompensation(updatedOrder);
         }
 
+        if (newStatus == OrderStatus.CONFIRMED) {
+            final Long id = orderId;
+            Thread.ofVirtual().start(() -> {
+                try {
+                    Thread.sleep(15000);
+                    Order shipped = updateStatus(id, OrderStatus.SHIPPED);
+                    orderEventPublisher.publishOrderStatusChanged(shipped);
+
+                    Thread.sleep(15000);
+                    Order delivered = updateStatus(id, OrderStatus.DELIVERED);
+                    orderEventPublisher.publishOrderStatusChanged(delivered);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        }
+
         return updatedOrder;
     }
 

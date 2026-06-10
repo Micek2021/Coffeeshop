@@ -15,6 +15,7 @@ async function placeOrder(productId, quantity, customerName) {
 }
 
 async function payForOrder(payLink) {
-    const res = await fetch(payLink, { method: 'POST' });
+    const url = payLink.replace(/^https?:\/\/[^/]+/, API_BASE);
+    const res = await fetch(url, { method: 'POST' });
     return await res.json();
 }

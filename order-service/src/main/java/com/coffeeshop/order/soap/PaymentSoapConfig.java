@@ -20,7 +20,6 @@ public class PaymentSoapConfig {
         WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
         webServiceTemplate.setMarshaller(marshaller);
         webServiceTemplate.setUnmarshaller(marshaller);
-        webServiceTemplate.setDefaultUri("http://localhost:8080/payment-soap");
-        return webServiceTemplate;
+        webServiceTemplate.setDefaultUri("http://payment-service:8083/payment-soap");        return webServiceTemplate;
     }
 }
